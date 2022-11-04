@@ -1,0 +1,15 @@
+[package]
+name = "vcard-qr"
+author = "SomewhereOutInSpace"
+version = "1.0.0"
+edition = "2021"
+description = "Generate basic VCard QR codes from the command line."
+repository  = "https://github.com/SomewhereOutInSpace/vcard-qr"
+readme = "README.md"
+license = "GPL 3.0"
+
+[dependencies]
+anyhow = "1.0.66"
+clap = { version = "4.0.19", features = ["derive"] }
+dialoguer = "0.10.2"
+qrcode-generator = "4.1.6"
