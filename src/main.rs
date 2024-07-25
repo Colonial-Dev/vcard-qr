@@ -49,8 +49,8 @@ fn build_vcard() -> Result<String> {
     }
 
     if query_bool("Do you want to add a note?", false)? {
-        if let Some(note) = Editor::new().edit("Enter your note...")? {
-            vcard.optional_push(NOTE, note)
+        if let Some(note) = Editor::new().edit("")? {
+            vcard.optional_push(NOTE, note.replace("\n", "\\n"))
         } else {
             println!("Skipped adding a note.")
         }
