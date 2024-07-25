@@ -8,12 +8,12 @@ pub struct Cli {
     #[arg(short, long, default_value = "vcard")]
     pub output_name: String,
     /// The desired output format of the QR code.
-    #[arg(short, long, value_enum, default_value_t=OutputFormat::Png)]
+    #[arg(short, long, value_enum, default_value_t=OutputFormat::Svg)]
     pub format: OutputFormat,
     /// The desired error correction level.
     /// Higher levels generate larger QR codes, but make it more likely
     /// the code will remain readable if it is damaged.
-    #[arg(short, long, value_enum, default_value_t=ErrorCorrection::Low)]
+    #[arg(short, long, value_enum, default_value_t=ErrorCorrection::Medium)]
     pub error_correction: ErrorCorrection,
     /// The size of the output image, in pixels.
     #[arg(short, long, default_value = "1024")]
