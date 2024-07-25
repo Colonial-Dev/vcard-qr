@@ -28,18 +28,18 @@ fn main() -> Result<()> {
 
     if let Some(s) = &cli.from {
         let vcard = fs::read_to_string(s)?;
-        let name = s.trim_end_matches(".vcf")
+        let name = s.trim_end_matches(".vcf");
       
         write_vcard(
             vcard.as_bytes(),
             &cli,
-            &name
+            name
         )?;
 
         write_vcard_qr(
             vcard,
             &cli,
-            &name
+            name
         )?;
     } else {
       let (vcard, name) = build_vcard()?;
