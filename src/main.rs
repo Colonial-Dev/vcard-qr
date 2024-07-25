@@ -42,19 +42,19 @@ fn main() -> Result<()> {
             name
         )?;
     } else {
-      let (vcard, name) = build_vcard()?;
+        let (vcard, name) = build_vcard()?;
 
-      write_vcard(
-          vcard.as_bytes(),
-          &cli,
-          &name
-      )?;
+        write_vcard(
+            vcard.as_bytes(),
+            &cli,
+            &name
+        )?;
 
-      write_vcard_qr(
-          vcard,
-          &cli,
-          &name
-      )?;
+        write_vcard_qr(
+            vcard,
+            &cli,
+            &name
+        )?;
     }
   
     Ok(())
@@ -64,6 +64,11 @@ fn build_vcard() -> Result<(String, String)> {
     let mut vcard = VCard::new();
 
     let name = query_input("Your name (required)", false)?;
+
+    if query_bool ("Do you want to specify name components (e.g. first/middle/last)?", false)? {
+        vcard.push("N", query_name_components()?)
+    }
+
     let email = query_input("Contact email (recommended)", true)?;
     let phone = query_input("Contact phone (recommended)", true)?;
     let website = query_input("Your website (optional)", true)?;
@@ -193,4 +198,18 @@ fn query_addresses() -> Result<Vec<String>> {
     }
 
     Ok(addresses)
+}
+
+fn query_name_components() -> Result<String> {
+    println!("Note: all name components can have multiple comma-separated values.");
+
+    let family_name = query_input("Family name(s)", true)?;
+    let given_name  = query_input("Given name(s)", true)?;
+    let middle_name = query_input("Middle name(s)", true)?;
+    let honor_pre   = query_input("Honorific prefix(es)", true)?;
+    let honor_suf   = query_input("Honorific suffix(es)", true)?;
+
+    Ok(
+        format!("{family_name};{given_name};{middle_name};{honor_pre};{honor_suf}")
+    )
 }
