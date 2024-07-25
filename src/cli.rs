@@ -5,8 +5,8 @@ use qrcode_generator::QrCodeEcc;
 #[command(author, version, about, long_about = None)]
 pub struct Cli {
     /// The desired name of the output file, sans extension.
-    #[arg(short, long, default_value = "vcard")]
-    pub output_name: String,
+    #[arg(short, long)]
+    pub output_name: Option<String>,
     /// Whether or not to prefix the output filename with the VCard's FN (formatted name) field.
     #[arg(short, long)]
     pub prefix_name: bool,
