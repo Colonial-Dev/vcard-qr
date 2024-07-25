@@ -5,11 +5,13 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use crate::cli::*;
-use crate::vcard::VCard;
+
 use anyhow::Result;
 use clap::Parser;
 use dialoguer::{Confirm, Editor, Input};
+
+use crate::cli::*;
+use crate::vcard::VCard;
 
 const FORMATTED_NAME: &str = "FN";
 const EMAIL: &str = "EMAIL";
@@ -28,32 +30,29 @@ fn main() -> Result<()> {
 
     if let Some(s) = &cli.from {
         let vcard = fs::read_to_string(s)?;
-        let name = s.trim_end_matches(".vcf");
+        let filename = cli.output_name.clone().unwrap_or(s.trim_end_matches(".vcf").to_string());
       
-        write_vcard(
-            vcard.as_bytes(),
-            &cli,
-            name
-        )?;
-
         write_vcard_qr(
             vcard,
             &cli,
-            name
+            &filename
         )?;
     } else {
         let (vcard, name) = build_vcard()?;
+        let mut filename = cli.output_name.clone().unwrap_or("vcard".to_string());
+        if cli.prefix_name {
+            filename = format!("{name}-{filename}");
+        }
 
         write_vcard(
             vcard.as_bytes(),
-            &cli,
-            &name
+            &filename
         )?;
 
         write_vcard_qr(
             vcard,
             &cli,
-            &name
+            &filename
         )?;
     }
   
@@ -98,26 +97,17 @@ fn build_vcard() -> Result<(String, String)> {
     ))
 }
 
-fn write_vcard(vcard: &[u8], config: &Cli, name: &str) -> Result<()> {
-    let vcf: PathBuf = match config.prefix_name {
-        false => format!("{}.vcf", &config.output_name).into(),
-        true =>  format!("{name}-{}.vcf", &config.output_name).into()
-    };
-
+fn write_vcard(vcard: &[u8], name: &str) -> Result<()> {
+    let vcf = format!("{name}.vcf");
     let bytes = File::create(&vcf)
         .map(|mut f| f.write(vcard))?;
 
-    println!("vCard written to \"{}\" ({} bytes)", vcf.to_string_lossy(), bytes.unwrap());
+    println!("vCard written to \"{}\" ({} bytes)", vcf, bytes.unwrap());
     Ok(())
 }
 
 fn write_vcard_qr(vcard: String, config: &Cli, name: &str) -> Result<()> {
-    use std::path::PathBuf;
-
-    let mut path = match config.prefix_name {
-        false => PathBuf::from(&config.output_name),
-        true =>  format!("{name}-{}", &config.output_name).into()
-    };
+    let mut path = PathBuf::from(name);
 
     match config.format {
         OutputFormat::Png => {
