@@ -1,5 +1,3 @@
-#![warn(clippy::perf, clippy::style, warnings)]
-
 mod cli;
 mod vcard;
 
@@ -27,13 +25,24 @@ fn main() -> Result<()> {
         &cli.format, &cli.error_correction, &cli.size
     );
 
-    let vcard = build_vcard()?;
-    write_vcard(vcard.as_bytes(), cli.output_name.clone())?;
-    write_vcard_qr(vcard, cli)?;
+    let (vcard, name) = build_vcard()?;
+
+    write_vcard(
+        vcard.as_bytes(),
+        &cli,
+        &name
+    )?;
+
+    write_vcard_qr(
+        vcard,
+        &cli,
+        &name
+    )?;
+
     Ok(())
 }
 
-fn build_vcard() -> Result<String> {
+fn build_vcard() -> Result<(String, String)> {
     let mut vcard = VCard::new();
 
     let name = query_input("Your name (required)", false)?;
@@ -41,7 +50,7 @@ fn build_vcard() -> Result<String> {
     let phone = query_input("Contact phone (recommended)", true)?;
     let website = query_input("Your website (optional)", true)?;
 
-    vcard.push(FORMATTED_NAME, name);
+    vcard.push(FORMATTED_NAME, &name);
     vcard.optional_push(EMAIL, email);
     vcard.optional_push(TELEPHONE, phone);
     vcard.optional_push(WEBSITE, website);
@@ -54,27 +63,38 @@ fn build_vcard() -> Result<String> {
 
     if query_bool("Do you want to add a note?", false)? {
         if let Some(note) = Editor::new().edit("")? {
-            vcard.optional_push(NOTE, note.replace("\n", "\\n"))
+            vcard.optional_push(NOTE, note.replace('\n', "\\n"))
         } else {
             println!("Skipped adding a note.")
         }
     }
 
-    Ok(vcard.finalize())
+    Ok((
+        vcard.finalize(),
+        name
+    ))
 }
 
-fn write_vcard(vcard: &[u8], filename: String) -> Result<()> {
-    let mut vcf = PathBuf::from(filename);
-    vcf.set_extension("vcf");
-    let bytes = File::create(vcf.clone()).map(|mut f| f.write(vcard))?;
+fn write_vcard(vcard: &[u8], config: &Cli, name: &str) -> Result<()> {
+    let vcf: PathBuf = match config.prefix_name {
+        false => format!("{}.vcf", &config.output_name).into(),
+        true =>  format!("{name}-{}.vcf", &config.output_name).into()
+    };
+
+    let bytes = File::create(&vcf)
+        .map(|mut f| f.write(vcard))?;
+
     println!("vCard written to \"{}\" ({} bytes)", vcf.to_string_lossy(), bytes.unwrap());
     Ok(())
 }
 
-fn write_vcard_qr(vcard: String, config: Cli) -> Result<()> {
+fn write_vcard_qr(vcard: String, config: &Cli, name: &str) -> Result<()> {
     use std::path::PathBuf;
 
-    let mut path = PathBuf::from(config.output_name);
+    let mut path = match config.prefix_name {
+        false => PathBuf::from(&config.output_name),
+        true =>  format!("{name}-{}", &config.output_name).into()
+    };
 
     match config.format {
         OutputFormat::Png => {
@@ -132,7 +152,11 @@ fn query_addresses() -> Result<Vec<String>> {
         let country = query_input("Country (optional)", true)?;
         let addr_type = query_input("Address type (e.g. home, optional)", true)?;
 
-        let street_addr = format!("{street_addr},{extended_addr}");
+
+        let street_addr = match extended_addr.len() {
+            0 => street_addr,
+            _ => format!("{street_addr}\\n{extended_addr}"),
+        };
 
         let property = match addr_type.is_empty() {
             false => format!("{ADDRESS};TYPE={addr_type}"),
