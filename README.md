@@ -37,6 +37,7 @@ By default it's formatted as a 1024x1024 SVG, but this is configurable - see bel
 ## Configuration
 There are a few arguments you can change from the default to tweak the final output:
 - `-o`/`--output-name` - the name of the output file, sans extension. Defaults to `vcard`.
+- `-p`/`--prefix-name` - prefix the name in the vCard (specifically, the `FN` field) to the output filename.
 - `-f`/`--format` - the output format of the QR code, either `png` or `svg`. Defaults to `png`.
 - `-e`/`--error-correction` - how much error correction should be baked into the QR code - `low`, `medium`, `high`, or `max`. Higher EC levels will generate larger QR codes, but can increase the chance that the code will remain readable if it's damaged. Defaults to `low`.
 - `-s`/`--size` - The height and width of the output image, in pixels. Defaults to 1024.
