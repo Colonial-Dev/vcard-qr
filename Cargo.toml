@@ -1,9 +1,9 @@
 [package]
 name = "vcard-qr"
-author = "SomewhereOutInSpace"
-version = "1.0.0"
+authors = ["SomewhereOutInSpace", "melonion"]
+version = "1.1.0"
 edition = "2021"
-description = "Generate basic VCard QR codes from the command line."
+description = "Generate basic vCard QR codes from the command line."
 repository  = "https://github.com/SomewhereOutInSpace/vcard-qr"
 readme = "README.md"
 license = "GPL 3.0"

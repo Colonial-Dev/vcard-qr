@@ -23,7 +23,7 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     println!(
-        "Building new VCard... [ Format: {:?} // ECC Level: {:?} // Size: {}px ]\n",
+        "Building new vCard... [ Format: {:?} // ECC Level: {:?} // Size: {}px ]\n",
         &cli.format, &cli.error_correction, &cli.size
     );
 
