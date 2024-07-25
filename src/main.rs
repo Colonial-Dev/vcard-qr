@@ -3,6 +3,9 @@
 mod cli;
 mod vcard;
 
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
 use crate::cli::*;
 use crate::vcard::VCard;
 use anyhow::Result;
@@ -25,7 +28,8 @@ fn main() -> Result<()> {
     );
 
     let vcard = build_vcard()?;
-    write_vcard(vcard, cli)?;
+    write_vcard(vcard.as_bytes(), cli.output_name.clone())?;
+    write_vcard_qr(vcard, cli)?;
     Ok(())
 }
 
@@ -59,7 +63,15 @@ fn build_vcard() -> Result<String> {
     Ok(vcard.finalize())
 }
 
-fn write_vcard(vcard: String, config: Cli) -> Result<()> {
+fn write_vcard(vcard: &[u8], filename: String) -> Result<()> {
+    let mut vcf = PathBuf::from(filename);
+    vcf.set_extension("vcf");
+    let bytes = File::create(vcf.clone()).map(|mut f| f.write(vcard))?;
+    println!("vCard written to \"{}\" ({} bytes)", vcf.to_string_lossy(), bytes.unwrap());
+    Ok(())
+}
+
+fn write_vcard_qr(vcard: String, config: Cli) -> Result<()> {
     use std::path::PathBuf;
 
     let mut path = PathBuf::from(config.output_name);
@@ -86,7 +98,7 @@ fn write_vcard(vcard: String, config: Cli) -> Result<()> {
         }
     }
 
-    println!("Output written to \"{}\".", path.to_string_lossy());
+    println!("QR Code written to \"{}\"", path.to_string_lossy());
     Ok(())
 }
 
