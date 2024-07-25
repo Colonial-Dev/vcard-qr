@@ -7,6 +7,9 @@ pub struct Cli {
     /// The desired name of the output file, sans extension.
     #[arg(short, long, default_value = "vcard")]
     pub output_name: String,
+    /// Whether or not to prefix the output filename with the VCard's FN (formatted name) field.
+    #[arg(short, long)]
+    pub prefix_name: bool,
     /// The desired output format of the QR code.
     #[arg(short, long, value_enum, default_value_t=OutputFormat::Svg)]
     pub format: OutputFormat,
@@ -23,7 +26,7 @@ pub struct Cli {
     pub from: Option<String>,
 }
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum ErrorCorrection {
     Low,
     Medium,
@@ -43,7 +46,7 @@ impl Into<QrCodeEcc> for ErrorCorrection {
     }
 }
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum OutputFormat {
     Png,
     Svg,
