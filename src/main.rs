@@ -3,6 +3,7 @@
 mod cli;
 mod vcard;
 
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -27,8 +28,13 @@ fn main() -> Result<()> {
         &cli.format, &cli.error_correction, &cli.size
     );
 
-    let vcard = build_vcard()?;
-    write_vcard(vcard.as_bytes(), cli.output_name.clone())?;
+    let vcard;
+    if let Some(s) = cli.from.clone() {
+        vcard = fs::read_to_string(s)?;
+    } else {
+        vcard = build_vcard()?;
+        write_vcard(vcard.as_bytes(), cli.output_name.clone())?;
+    }
     write_vcard_qr(vcard, cli)?;
     Ok(())
 }

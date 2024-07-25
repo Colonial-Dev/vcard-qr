@@ -18,6 +18,9 @@ pub struct Cli {
     /// The size of the output image, in pixels.
     #[arg(short, long, default_value = "1024")]
     pub size: usize,
+    /// vcf File to read from
+    #[arg(long)]
+    pub from: Option<String>,
 }
 
 #[derive(Debug, Clone, ValueEnum)]

@@ -40,3 +40,4 @@ There are a few arguments you can change from the default to tweak the final out
 - `-f`/`--format` - the output format of the QR code, either `png` or `svg`. Defaults to `png`.
 - `-e`/`--error-correction` - how much error correction should be baked into the QR code - `low`, `medium`, `high`, or `max`. Higher EC levels will generate larger QR codes, but can increase the chance that the code will remain readable if it's damaged. Defaults to `low`.
 - `-s`/`--size` - The height and width of the output image, in pixels. Defaults to 1024.
+- `--from` - Reuse an existing vCard file instead of prompting.
