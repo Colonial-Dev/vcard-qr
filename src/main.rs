@@ -1,6 +1,7 @@
 mod cli;
 mod vcard;
 
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -21,24 +22,41 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     println!(
-        "Building new VCard... [ Format: {:?} // ECC Level: {:?} // Size: {}px ]\n",
+        "Building new vCard... [ Format: {:?} // ECC Level: {:?} // Size: {}px ]\n",
         &cli.format, &cli.error_correction, &cli.size
     );
 
-    let (vcard, name) = build_vcard()?;
+    if let Some(s) = &cli.from {
+        let vcard = fs::read_to_string(s)?;
+        let name = s.trim_end_matches(".vcf")
+      
+        write_vcard(
+            vcard.as_bytes(),
+            &cli,
+            &name
+        )?;
 
-    write_vcard(
-        vcard.as_bytes(),
-        &cli,
-        &name
-    )?;
+        write_vcard_qr(
+            vcard,
+            &cli,
+            &name
+        )?;
+    } else {
+      let (vcard, name) = build_vcard()?;
 
-    write_vcard_qr(
-        vcard,
-        &cli,
-        &name
-    )?;
+      write_vcard(
+          vcard.as_bytes(),
+          &cli,
+          &name
+      )?;
 
+      write_vcard_qr(
+          vcard,
+          &cli,
+          &name
+      )?;
+    }
+  
     Ok(())
 }
 
